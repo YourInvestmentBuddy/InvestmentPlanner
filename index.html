@@ -40,7 +40,8 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   h3{font-size:15px}
   .row,.result{grid-template-columns:1fr}
   .child-input-row{grid-template-columns:1fr 1fr;gap:10px}
-  .child-input-row label{font-size:12px;line-height:1.25;min-height:30px;margin-top:8px}
+  .child-input-row label,.assumption-input-row label{font-size:12px;line-height:1.25;min-height:30px;margin-top:8px}
+  .assumption-input-row{grid-template-columns:1fr 1fr;gap:10px}
   label{font-size:13px;margin-top:13px}
   input,select{font-size:16px;padding:12px}
   .goal{padding:13px}
@@ -79,11 +80,11 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     </div>
 
     <h2 style="margin-top:24px">Investment assumptions</h2>
-    <div class="row">
+    <div class="row assumption-input-row">
       <div><label>Expected return (% p.a.)</label><input id="returnRate" type="number" min="1" max="30" step=".5" value="10"></div>
       <div><label>Annual SIP step-up (%)</label><input id="stepUp" type="number" min="0" max="30" step="1" value="10"></div>
     </div>
-    <div class="row">
+    <div class="row assumption-input-row">
       <div><label>Education inflation (% p.a.)</label><input id="eduInfl" type="number" min="0" max="20" step=".5" value="8"></div>
       <div><label>Marriage inflation (% p.a.)</label><input id="marInfl" type="number" min="0" max="20" step=".5" value="6"></div>
     </div>
