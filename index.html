@@ -311,7 +311,8 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   }
 
   function updateSchool(){
-    goalState.school={cost:+$("schoolCost").value||0,corpus:+$("schoolCorpus").value||0,coachCost:+$("coachCost").value||0,start:+$("startYears").value||0,coaching:$("coaching").value,chosenSip:+$("chosenSip")?.value||0};
+    const selectedSip=Math.max(0,+$("chosenSip")?.value||0);
+    goalState.school={...(goalState.school||{}),cost:+$("schoolCost").value||0,corpus:+$("schoolCorpus").value||0,coachCost:+$("coachCost").value||0,start:+$("startYears").value||0,coaching:$("coaching").value,chosenSip:selectedSip};
     const c=assumptions();
     const start=Math.max(0,+$("startYears").value||0);
     const base=+$("schoolCost").value||0;
@@ -332,8 +333,9 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     };
     const horizon=start+14;
     const required=solve(s=>monthlySim(s,horizon,c.ret,c.step,existing,withdrawal).minimumCorpus);
-    goalState.school={...(goalState.school||{}),cost:base,corpus:existing,coachCost, start, coaching, required};
-    const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},goalState.school.chosenSip||required);
+    const activeSip=goalState.school.chosenSip>0 ? goalState.school.chosenSip : required;
+    goalState.school={...(goalState.school||{}),cost:base,corpus:existing,coachCost, start, coaching, required,chosenSip:activeSip};
+    const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},activeSip);
     $("schoolResult").innerHTML=`
       <div class="result">
         <div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div>
@@ -341,7 +343,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
         <div class="metric"><span>School period</span><strong>${horizon} yrs</strong></div>
       </div>
       <label>Your monthly SIP <span class="muted">(editable)</span></label>
-      <input id="chosenSip" type="number" min="0" step="500" value="${Math.round(required)}">
+      <input id="chosenSip" type="number" min="0" step="500" value="${Math.round(activeSip)}">
       <div id="sipStatus" style="margin-top:12px">${statusHTML(result)}</div>
       <div class="assumption" style="margin-top:14px"><b>Milestone funding:</b> Each academic-year withdrawal is calculated from today's fee, grown by the education-inflation assumption. The chart marks every withdrawal so you can see exactly when money leaves the corpus.</div>
       <div class="chart"><h3>Corpus journey and withdrawals</h3>${chart(result.points)}</div>`;
