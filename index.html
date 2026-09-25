@@ -541,7 +541,14 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     });
   });
   ["age","schoolAge","returnRate","stepUp","eduInfl","marInfl"].forEach(id=>{
-    $(id).addEventListener("input",render);
+    $(id).addEventListener("input",()=>{
+      // A change to the core assumptions invalidates the previously selected SIP.
+      // Recalculate the required SIP for the new timeline/assumptions.
+      if(id==="age" || id==="schoolAge"){
+        Object.keys(goalState).forEach(k=>{ if(goalState[k]) delete goalState[k].chosenSip; });
+      }
+      render();
+    });
   });
   loadPlannerState();
   document.querySelectorAll(".goal").forEach(el=>el.classList.toggle("active",el.dataset.goal===goal));
