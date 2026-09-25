@@ -339,9 +339,9 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   }
 
   function updateSchool(){
+    const c=assumptions();
     const selectedSip=Math.max(0,+$("chosenSip")?.value||0);
     goalState.school={...(goalState.school||{}),cost:+$("schoolCost").value||0,corpus:+$("schoolCorpus").value||0,coachCost:+$("coachCost").value||0,start:Math.max(0,c.schoolAge-c.age),coaching:$("coaching").value,chosenSip:selectedSip};
-    const c=assumptions();
     const start=Math.max(0,c.schoolAge-c.age);
     const base=+$("schoolCost").value||0;
     const existing=+$("schoolCorpus").value||0;
