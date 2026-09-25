@@ -327,7 +327,12 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
         <div><label>Existing school corpus</label><input id="schoolCorpus" type="number" value="${goalState.school?.corpus ?? 0}" min="0"></div>
       </div>
       <label>Competitive-exam coaching</label>
-      <select id="coaching"><option value="none">No coaching</option><option value="jee">JEE / IIT</option><option value="neet">NEET</option><option value="other">Other</option></select>
+      <select id="coaching">
+        <option value="none" ${(goalState.school?.coaching||"none")==="none"?"selected":""}>No coaching</option>
+        <option value="jee" ${goalState.school?.coaching==="jee"?"selected":""}>JEE / IIT</option>
+        <option value="neet" ${goalState.school?.coaching==="neet"?"selected":""}>NEET</option>
+        <option value="other" ${goalState.school?.coaching==="other"?"selected":""}>Other</option>
+      </select>
       <div class="row goal-panel-inputs">
         <div><label>Current annual coaching cost</label><input id="coachCost" type="number" value="${goalState.school?.coachCost ?? 200000}" min="0"></div>
         <div><label>Years until school starts</label><input id="startYears" type="number" value="${Math.max(0,c.schoolAge-c.age)}" min="0" max="30" readonly></div>
@@ -340,19 +345,18 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
 
   function updateSchool(){
     const c=assumptions();
-    const selectedSip=Math.max(0,+$("chosenSip")?.value||0);
-    goalState.school={...(goalState.school||{}),cost:+$("schoolCost").value||0,corpus:+$("schoolCorpus").value||0,coachCost:+$("coachCost").value||0,start:Math.max(0,c.schoolAge-c.age),coaching:$("coaching").value,chosenSip:selectedSip};
     const start=Math.max(0,c.schoolAge-c.age);
     const base=+$("schoolCost").value||0;
     const existing=+$("schoolCorpus").value||0;
-    const coaching=$("coaching").value!=="none";
+    const coachingType=$("coaching").value;
+    const coaching=coachingType!=="none";
     const coachBase=+$("coachCost").value||0;
     const fees=[];
     for(let i=0;i<14;i++){
       const cls=i===0?"LKG":i===1?"UKG":"Class "+(i-1);
       const fee=base*Math.pow(1+c.edu/100,start+i);
       const coach=(i>=10&&coaching)?coachBase*Math.pow(1+c.edu/100,start+i):0;
-      fees.push({cls,total:fee+coach});
+      fees.push({cls,total:fee+coach,schoolFee:fee,coachingFee:coach});
     }
     const withdrawal=m=>{
       if(m%12!==0)return 0;
@@ -361,23 +365,18 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     };
     const horizon=start+14;
     const required=solve(s=>monthlySim(s,horizon,c.ret,c.step,existing,withdrawal).minimumCorpus);
-    const activeSip=goalState.school.chosenSip>0 ? goalState.school.chosenSip : required;
-    goalState.school={...(goalState.school||{}),cost:base,corpus:existing,coachCost, start, coaching, required,chosenSip:activeSip};
+    const previousSip=Math.max(0,Number(goalState.school?.chosenSip)||0);
+    const activeSip=previousSip>0?previousSip:required;
+    goalState.school={...(goalState.school||{}),cost:base,corpus:existing,coachCost:coachBase,start,coaching:coachingType,required,chosenSip:activeSip};
     const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},activeSip);
-    $("schoolResult").innerHTML=`
-      <div class="result">
-        <div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div>
-        <div class="metric"><span>First milestone corpus needed</span><strong>${money(fees[0].total)}</strong></div>
-        <div class="metric"><span>School period</span><strong>${horizon} yrs</strong></div>
-      </div>
-      <label>Your monthly SIP <span class="muted">(editable)</span></label>
-      <input id="chosenSip" type="number" min="0" step="500" value="${Math.round(activeSip)}">
-      <div id="sipStatus" style="margin-top:12px">${statusHTML(result)}</div>
-      <div class="assumption" style="margin-top:14px"><b>Milestone funding:</b> Each academic-year withdrawal is calculated from today's fee, grown by the education-inflation assumption. The chart marks every withdrawal so you can see exactly when money leaves the corpus.</div>
-      <div class="chart"><h3>Corpus journey and withdrawals</h3>${chart(result.points)}</div>`;
+    $("schoolResult").innerHTML=`<div class="result"><div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div><div class="metric"><span>First milestone corpus needed</span><strong>${money(fees[0].total)}</strong></div><div class="metric"><span>School period</span><strong>${horizon} yrs</strong></div></div>`+
+      `<div class="result" style="margin-top:-6px"><div class="metric"><span>${coaching?"Estimated coaching cost (today)":"Coaching"}</span><strong>${coaching?money(coachBase)+"/yr":"Not included"}</strong></div><div class="metric"><span>School fee today</span><strong>${money(base)}/yr</strong></div><div class="metric"><span>School starts in</span><strong>${start} yrs</strong></div></div>`+
+      `<label>Your monthly SIP <span class="muted">(editable)</span></label><input id="chosenSip" type="number" min="0" step="500" value="${Math.round(activeSip)}">`+
+      `<div id="sipStatus" style="margin-top:12px">${statusHTML(result)}</div>`+
+      `<div class="assumption" style="margin-top:14px"><b>Milestone funding:</b> Each academic-year withdrawal is calculated from the current fee, grown by the education-inflation assumption. ${coaching?"Coaching is included from Class 9 onward at the estimated cost of "+money(coachBase)+"/year, also inflated using the education-inflation assumption.":"No competitive-exam coaching is included in the projection."}</div>`+
+      `<div class="chart"><h3>Corpus journey and withdrawals</h3>${chart(result.points)}</div>`;
     $("chosenSip").addEventListener("input",updateChosenSchoolSip);
   }
-
   function updateChosenSchoolSip(){
     const c=assumptions();
     const start=Math.max(0,c.schoolAge-c.age), base=+$("schoolCost").value||0, existing=+$("schoolCorpus").value||0;
