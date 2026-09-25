@@ -39,6 +39,8 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   h2{font-size:19px;margin-bottom:14px}
   h3{font-size:15px}
   .row,.result{grid-template-columns:1fr}
+  .child-input-row{grid-template-columns:1fr 1fr;gap:10px}
+  .child-input-row label{font-size:12px;line-height:1.25;min-height:30px;margin-top:8px}
   label{font-size:13px;margin-top:13px}
   input,select{font-size:16px;padding:12px}
   .goal{padding:13px}
@@ -71,7 +73,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
 <div class="grid">
   <div class="card">
     <h2>Your child</h2>
-    <div class="row">
+    <div class="row child-input-row">
       <div><label>Child's age today</label><input id="age" type="number" min="0" max="17" value="2"></div>
       <div><label>School starts at age</label><input id="schoolAge" type="number" min="3" max="7" value="5"></div>
     </div>
