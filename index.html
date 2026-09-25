@@ -40,6 +40,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   h3{font-size:16.5px}
   .row{grid-template-columns:1fr}
   .result{grid-template-columns:repeat(3,1fr);gap:7px}
+  .school-breakdown{grid-template-columns:repeat(2,1fr)}
   .metric{padding:10px 8px}
   .metric span{font-size:11px;line-height:1.25}
   .metric strong{font-size:18.7px;line-height:1.15;word-break:break-word}
@@ -48,6 +49,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   .assumption-input-row{grid-template-columns:1fr 1fr;gap:10px}
   .goal-panel-inputs{grid-template-columns:1fr 1fr;gap:10px}
   .goal-panel-result .status{margin-bottom:12px}
+  .school-breakdown{grid-template-columns:repeat(5,1fr);gap:8px}
   .goal-list{grid-template-columns:repeat(2,1fr);gap:8px}
   .goal{padding:11px}
   .goal strong{font-size:14.3px}
@@ -453,6 +455,23 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
         <tbody>${rows.map(r=>`<tr><td style="padding:12px;border-bottom:1px solid #eef0f3">${r[0]}</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eef0f3;font-weight:700">${money(r[1])}/mo</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eef0f3">${r[2]}</td><td style="padding:12px;border-bottom:1px solid #eef0f3">${r[3]}</td></tr>`).join("")}</tbody>
         <tfoot><tr><td style="padding:14px;font-weight:800">Total</td><td style="padding:14px;text-align:right;font-weight:800">${money(total)}/mo</td><td></td><td></td></tr></tfoot>
       </table></div>
+      <div class="section" style="margin-top:18px">
+        <h3>School expense breakdown</h3>
+        <p class="muted">A practical way to think about the annual school budget beyond tuition. These are planning categories; actual inclusions vary by school and campus.</p>
+        <div class="result school-breakdown">
+          <div class="metric"><span>Tuition</span><strong>65%</strong></div>
+          <div class="metric"><span>Transport</span><strong>15%</strong></div>
+          <div class="metric"><span>Books & supplies</span><strong>5%</strong></div>
+          <div class="metric"><span>Activities</span><strong>8%</strong></div>
+          <div class="metric"><span>Uniform & misc.</span><strong>7%</strong></div>
+        </div>
+        <div class="assumption">
+          <b>Why this matters:</b> a school budget is often wider than the headline tuition. Transport, learning materials, activities, uniforms, trips and other recurring/optional expenses can materially change the family's annual outlay. The percentages above are <b>illustrative planning assumptions</b>, not fee schedules for any particular school.
+        </div>
+        <div class="assumption" style="margin-top:10px">
+          <b>Reference schools:</b> VIBGYOR's published fee structures show grade-wise annual fees and its Bengaluru campuses list transport, sports, performing arts, clubs and other facilities. Delhi Public School Bangalore North's available 2026-27 fee data separately identifies tuition and activity/development charges. Edify School Bengaluru fee listings similarly separate tuition, annual/other charges and one-time admission items. Actual transport, books, uniforms and activity costs can vary by campus and may be charged separately.
+        </div>
+      </div>
       <div class="assumption" style="margin-top:16px"><b>How to use it:</b> treat ${money(total)}/month as the combined starting amount. Each goal can then be adjusted independently on its own page. The current summary is not yet an optimized common-pool calculation.</div>`;
   }
 
