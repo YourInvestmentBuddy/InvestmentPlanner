@@ -447,8 +447,11 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
       const idx=Math.floor(m/12)-1-start;
       return idx>=0&&idx<14?fees[idx]:0;
     };
-    const school=goalState.school?.required ?? solve(s=>monthlySim(s,start+14,c.ret,c.step,goalState.school?.corpus||0,withdrawal).minimumCorpus)*1.0005;
+    const school=goalState.school?.chosenSip>0 ? goalState.school.chosenSip : (goalState.school?.required ?? solve(s=>monthlySim(s,start+14,c.ret,c.step,goalState.school?.corpus||0,withdrawal).minimumCorpus)*1.0005);
     const g=goalState.graduation?.model||lumpModel("graduation",c), pg=goalState.pg?.model||lumpModel("pg",c), mar=goalState.marriage?.model||lumpModel("marriage",c);
+    if(goalState.graduation?.chosenSip>0) g.required=goalState.graduation.chosenSip;
+    if(goalState.pg?.chosenSip>0) pg.required=goalState.pg.chosenSip;
+    if(goalState.marriage?.chosenSip>0) mar.required=goalState.marriage.chosenSip;
     const total=school+g.required+pg.required+mar.required;
     const rows=[["School",school,`${start} yrs`,"Annual withdrawals"],["Graduation",g.required,`${g.years} yrs`,"Lump sum"],["Post-Graduation",pg.required,`${pg.years} yrs`,"Lump sum"],["Marriage",mar.required,`${mar.years} yrs`,"Lump sum"]];
     $("goalPanel").innerHTML=`
