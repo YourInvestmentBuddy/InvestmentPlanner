@@ -19,8 +19,46 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
 .section{margin-top:18px}.assumption{background:#fafafa;border:1px dashed #d8dde5;border-radius:13px;padding:13px;font-size:12px;color:var(--muted);line-height:1.55}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{background:#f0f3f5;color:#344054}.tab.active{background:var(--accent);color:#fff}
 .footer{font-size:12px;color:var(--muted);margin-top:20px;text-align:center}
-@media(max-width:850px){.grid{grid-template-columns:1fr}.result{grid-template-columns:1fr 1fr}.hero h1{font-size:29px}}
-@media(max-width:520px){.result,.row{grid-template-columns:1fr}.container{padding:15px 12px 40px}.hero{padding:28px 22px;border-radius:18px}}
+@media(max-width:850px){
+  .grid{grid-template-columns:1fr}
+  .container{padding:20px 16px 44px}
+  .hero{padding:30px 24px;border-radius:20px}
+  .hero h1{font-size:30px;line-height:1.12}
+  .hero p{font-size:15px}
+  .card{padding:20px}
+  .result{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  body{font-size:15px}
+  .container{padding:12px 10px 34px}
+  .hero{padding:24px 18px;border-radius:18px;margin-bottom:14px}
+  .hero h1{font-size:26px;letter-spacing:-.6px}
+  .hero p{font-size:14px;line-height:1.5}
+  .grid{gap:14px}
+  .card{border-radius:16px;padding:16px}
+  h2{font-size:19px;margin-bottom:14px}
+  h3{font-size:15px}
+  .row,.result{grid-template-columns:1fr}
+  label{font-size:13px;margin-top:13px}
+  input,select{font-size:16px;padding:12px}
+  .goal{padding:13px}
+  .goal strong{font-size:15px}
+  .goal small{display:block;margin-top:3px}
+  button{min-height:44px}
+  .actions{flex-direction:column}
+  .actions button{width:100%}
+  .metric{padding:13px}
+  .metric strong{font-size:21px}
+  .status{font-size:14px}
+  .chart{padding:10px}
+  .chart-scroll{margin:0 -2px;width:calc(100% + 4px);-webkit-overflow-scrolling:touch}
+  .chart svg{height:320px}
+  .chart-zoombar{justify-content:flex-start;gap:6px;flex-wrap:wrap}
+  .chart-zoombar button{min-height:40px;padding:8px 12px}
+  .legend{gap:10px;flex-wrap:wrap;font-size:11px}
+  .assumption{font-size:12px;padding:12px}
+  table{font-size:13px!important}
+}
 </style>
 </head>
 <body>
