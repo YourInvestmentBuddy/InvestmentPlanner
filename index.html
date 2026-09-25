@@ -140,6 +140,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   const $ = id => document.getElementById(id);
   const money = n => "₹" + Math.max(0, Math.round(Number(n)||0)).toLocaleString("en-IN");
   let goal = "school";
+  const goalState = {};
 
   function assumptions(){
     return {
@@ -294,14 +295,14 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
       <h2>School planner</h2>
       <p class="muted">Annual withdrawals are made at the beginning of each academic year. Competitive-exam coaching can be added from Class 9.</p>
       <div class="row goal-panel-inputs">
-        <div><label>Current annual school fee</label><input id="schoolCost" type="number" value="200000" min="0"></div>
-        <div><label>Existing school corpus</label><input id="schoolCorpus" type="number" value="0" min="0"></div>
+        <div><label>Current annual school fee</label><input id="schoolCost" type="number" value="${goalState.school?.cost ?? 200000}" min="0"></div>
+        <div><label>Existing school corpus</label><input id="schoolCorpus" type="number" value="${goalState.school?.corpus ?? 0}" min="0"></div>
       </div>
       <label>Competitive-exam coaching</label>
       <select id="coaching"><option value="none">No coaching</option><option value="jee">JEE / IIT</option><option value="neet">NEET</option><option value="other">Other</option></select>
       <div class="row goal-panel-inputs">
-        <div><label>Current annual coaching cost</label><input id="coachCost" type="number" value="200000" min="0"></div>
-        <div><label>School starts in</label><input id="startYears" type="number" value="${Math.max(0,c.schoolAge-c.age)}" min="0" max="30"></div>
+        <div><label>Current annual coaching cost</label><input id="coachCost" type="number" value="${goalState.school?.coachCost ?? 200000}" min="0"></div>
+        <div><label>School starts in</label><input id="startYears" type="number" value="${goalState.school?.start ?? Math.max(0,c.schoolAge-c.age)}" min="0" max="30"></div>
       </div>
       <div class="actions goal-panel-actions"><button id="calcSchool" type="button">Calculate school SIP</button></div>
       <div id="schoolResult" class="goal-panel-result" style="margin-top:22px"></div>`;
@@ -310,6 +311,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   }
 
   function updateSchool(){
+    goalState.school={cost:+$("schoolCost").value||0,corpus:+$("schoolCorpus").value||0,coachCost:+$("coachCost").value||0,start:+$("startYears").value||0,coaching:$("coaching").value,chosenSip:+$("chosenSip")?.value||0};
     const c=assumptions();
     const start=Math.max(0,+$("startYears").value||0);
     const base=+$("schoolCost").value||0;
@@ -330,7 +332,8 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     };
     const horizon=start+14;
     const required=solve(s=>monthlySim(s,horizon,c.ret,c.step,existing,withdrawal).minimumCorpus);
-    const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},required);
+    goalState.school={...(goalState.school||{}),cost:base,corpus:existing,coachCost, start, coaching, required};
+    const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},goalState.school.chosenSip||required);
     $("schoolResult").innerHTML=`
       <div class="result">
         <div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div>
@@ -404,6 +407,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     const goalAge=+$("goalAge").value||c.age, years=Math.max(0,goalAge-c.age), infl=+$("goalInfl").value||0;
     const future=cost*Math.pow(1+infl/100,years);
     const required=solve(s=>monthlySim(s,years,c.ret,c.step,existing).corpus-future) * 1.0005;
+    goalState[type]={cost,corpus:existing,goalAge,infl,model:{future,years,required,goalAge,infl,defaultCost:cost},chosenSip:+$("chosenLumpSip")?.value||required};
     const sim=monthlySim(required,years,c.ret,c.step,existing);
     $("lumpResult").innerHTML=`
       <div class="result">
@@ -424,6 +428,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
     const c=assumptions(), chosen=Math.max(0,+$("chosenLumpSip").value||0), cost=+$("lumpCost").value||0, existing=+$("lumpCorpus").value||0;
     const goalAge=+$("goalAge").value||c.age, years=Math.max(0,goalAge-c.age), infl=+$("goalInfl").value||0;
     const future=cost*Math.pow(1+infl/100,years);
+    goalState[type]={...(goalState[type]||{}),cost,corpus:existing,goalAge,infl,chosenSip:chosen,model:{future,years,required:goalState[type]?.model?.required||0,goalAge,infl,defaultCost:cost}};
     const sim=monthlySim(chosen,years,c.ret,c.step,existing);
     const diff=sim.corpus-future;
     $("lumpStatus").innerHTML=diff<0
@@ -435,15 +440,15 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   function renderSummary(){
     const c=assumptions();
     // Independent-goal summary. School defaults are intentionally aligned with the school page.
-    const start=Math.max(0,c.schoolAge-c.age), base=200000;
+    const start=Math.max(0,c.schoolAge-c.age), base=goalState.school?.cost ?? 200000;
     const fees=Array.from({length:14},(_,i)=>base*Math.pow(1+c.edu/100,start+i));
     const withdrawal=m=>{
       if(m%12!==0)return 0;
       const idx=Math.floor(m/12)-1-start;
       return idx>=0&&idx<14?fees[idx]:0;
     };
-    const school=solve(s=>monthlySim(s,start+14,c.ret,c.step,0,withdrawal).minimumCorpus)*1.0005;
-    const g=lumpModel("graduation",c), pg=lumpModel("pg",c), mar=lumpModel("marriage",c);
+    const school=goalState.school?.required ?? solve(s=>monthlySim(s,start+14,c.ret,c.step,goalState.school?.corpus||0,withdrawal).minimumCorpus)*1.0005;
+    const g=goalState.graduation?.model||lumpModel("graduation",c), pg=goalState.pg?.model||lumpModel("pg",c), mar=goalState.marriage?.model||lumpModel("marriage",c);
     const total=school+g.required+pg.required+mar.required;
     const rows=[["School",school,`${start} yrs`,"Annual withdrawals"],["Graduation",g.required,`${g.years} yrs`,"Lump sum"],["Post-Graduation",pg.required,`${pg.years} yrs`,"Lump sum"],["Marriage",mar.required,`${mar.years} yrs`,"Lump sum"]];
     $("goalPanel").innerHTML=`
