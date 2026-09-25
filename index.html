@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investment Planner for Child's Future</title>
+<style>
+:root{--ink:#17202a;--muted:#667085;--line:#e6e9ee;--bg:#f6f7f9;--card:#fff;--accent:#0b6b5e;--accent2:#e8f5f1;--warn:#fff4e5;--danger:#b54708}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+.container{max-width:1180px;margin:auto;padding:28px 20px 60px}
+.hero{background:linear-gradient(135deg,#083f38,#0b6b5e);color:white;border-radius:24px;padding:38px 34px;margin-bottom:22px}
+.hero h1{font-size:36px;margin:0 0 10px;letter-spacing:-1px}.hero p{margin:0;max-width:700px;color:#d8eee9;font-size:16px;line-height:1.6}
+.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 5px 18px #10182808}
+h2{font-size:21px;margin:0 0 18px}h3{font-size:16px;margin:0 0 8px}th{font-weight:700;color:#667085}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+label{display:block;font-size:13px;font-weight:650;margin:15px 0 7px}input,select{width:100%;border:1px solid #d8dde5;border-radius:10px;padding:11px 12px;font-size:15px;background:white}input:focus,select:focus{outline:2px solid #b9e1d9;border-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.goal-list{display:grid;gap:10px}.goal{border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer}.goal.active{border-color:var(--accent);background:var(--accent2)}.goal strong{display:block}.goal small{color:var(--muted)}
+button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);color:white;font-weight:700;cursor:pointer}.secondary{background:#eef2f4;color:var(--ink)}.actions{display:flex;gap:10px;margin-top:18px}
+.result{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.metric{background:#f8fafb;border-radius:14px;padding:15px}.metric span{display:block;color:var(--muted);font-size:12px}.metric strong{font-size:23px;display:block;margin-top:5px}.status{padding:12px 14px;border-radius:12px;background:var(--accent2);color:#075e52;font-weight:650;margin-bottom:18px}.chart{border:1px solid var(--line);border-radius:15px;padding:14px;background:#fff}.chart svg{width:100%;height:270px}.legend{display:flex;gap:18px;font-size:12px;color:var(--muted);margin:5px 0 0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;background:#0b6b5e}.dot2{background:#9aa5b1}
+.section{margin-top:18px}.assumption{background:#fafafa;border:1px dashed #d8dde5;border-radius:13px;padding:13px;font-size:12px;color:var(--muted);line-height:1.55}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{background:#f0f3f5;color:#344054}.tab.active{background:var(--accent);color:#fff}
+.footer{font-size:12px;color:var(--muted);margin-top:20px;text-align:center}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.result{grid-template-columns:1fr 1fr}.hero h1{font-size:29px}}
+@media(max-width:520px){.result,.row{grid-template-columns:1fr}.container{padding:15px 12px 40px}.hero{padding:28px 22px;border-radius:18px}}
+</style>
+</head>
+<body>
+<div class="container">
+<section class="hero">
+  <h1>Investment Planner for Child's Future</h1>
+  <p>Know what your child's future goals may cost — and how much you should invest today. Plan school, graduation, post-graduation and marriage as separate goals.</p>
+</section>
+
+<div class="grid">
+  <div class="card">
+    <h2>Your child</h2>
+    <div class="row">
+      <div><label>Child's age today</label><input id="age" type="number" min="0" max="17" value="2"></div>
+      <div><label>School starts at age</label><input id="schoolAge" type="number" min="3" max="7" value="5"></div>
+    </div>
+
+    <h2 style="margin-top:24px">Investment assumptions</h2>
+    <div class="row">
+      <div><label>Expected return (% p.a.)</label><input id="returnRate" type="number" min="1" max="30" step=".5" value="10"></div>
+      <div><label>Annual SIP step-up (%)</label><input id="stepUp" type="number" min="0" max="30" step="1" value="10"></div>
+    </div>
+    <div class="row">
+      <div><label>Education inflation (% p.a.)</label><input id="eduInfl" type="number" min="0" max="20" step=".5" value="8"></div>
+      <div><label>Marriage inflation (% p.a.)</label><input id="marInfl" type="number" min="0" max="20" step=".5" value="6"></div>
+    </div>
+
+    <h2 style="margin-top:24px">Choose a goal</h2>
+    <div class="goal-list">
+      <div class="goal active" data-goal="school"><strong>🏫 School</strong><small>LKG to Class 12 + optional coaching</small></div>
+      <div class="goal" data-goal="graduation"><strong>🎓 Graduation</strong><small>One lump-sum education goal</small></div>
+      <div class="goal" data-goal="pg"><strong>📚 Post-Graduation</strong><small>One lump-sum education goal</small></div>
+      <div class="goal" data-goal="marriage"><strong>💍 Marriage</strong><small>Long-term lump-sum goal</small></div>
+      <div class="goal" data-goal="summary"><strong>📊 Plan Summary</strong><small>All SIPs + combined monthly amount</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="goalPanel"></div>
+  </div>
+</div>
+
+<div class="card section">
+  <h2>How the calculation works</h2>
+  <div class="assumption">
+    Each goal has its own SIP. The calculator first projects the future cost using inflation, then calculates the starting monthly SIP required to reach that goal while increasing the SIP every year. School is modelled differently because money is withdrawn at the beginning of each academic year; graduation, PG and marriage are modelled as a single withdrawal at the goal date.
+    <br><br><b>Illustrative assumptions:</b> figures such as return, inflation and costs are editable and are not guarantees.
+  </div>
+</div>
+<div class="footer">Investment Planner for Child's Future · Prototype · For planning illustration only</div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const money = n => "₹" + Math.max(0, Math.round(Number(n)||0)).toLocaleString("en-IN");
+  let goal = "school";
+
+  function assumptions(){
+    return {
+      age: Math.max(0, +$("age").value || 0),
+      schoolAge: Math.max(3, +$("schoolAge").value || 5),
+      ret: Math.max(0, +$("returnRate").value || 0),
+      step: Math.max(0, +$("stepUp").value || 0),
+      edu: Math.max(0, +$("eduInfl").value || 0),
+      mar: Math.max(0, +$("marInfl").value || 0)
+    };
+  }
+
+  function monthlySim(startSip, years, ret, step, initial=0, withdrawalFn=()=>0){
+    years=Math.max(0, Math.ceil(years));
+    const r=Math.pow(1+ret/100,1/12)-1;
+    let corpus=Math.max(0, initial), sip=Math.max(0,startSip), points=[];
+    let minimumCorpus=corpus, firstShortfall=null;
+    for(let m=0;m<years*12;m++){
+      if(m>0 && m%12===0) sip*=1+step/100;
+      corpus*=1+r;
+      corpus+=sip;
+      const w=withdrawalFn(m+1,(m+1)/12);
+      if(w){
+        corpus-=w;
+        if(corpus<0 && !firstShortfall) firstShortfall={month:m+1, amount:Math.abs(corpus)};
+      }
+      minimumCorpus=Math.min(minimumCorpus,corpus);
+      if(m%12===11) points.push({year:(m+1)/12, corpus, raw:corpus});
+    }
+    return {corpus,points,minimumCorpus,firstShortfall};
+  }
+
+  function solve(requiredFn){
+    let lo=0, hi=1000;
+    while(requiredFn(hi)<0 && hi<100000000) hi*=2;
+    for(let i=0;i<100;i++){
+      const mid=(lo+hi)/2;
+      if(requiredFn(mid)>=0) hi=mid; else lo=mid;
+    }
+    return hi;
+  }
+
+  function schoolModel(c){
+    const start=Math.max(0,c.schoolAge-c.age);
+    const base=+$("schoolCost").value || 200000;
+    const existing=+$("schoolCorpus").value || 0;
+    const coaching=$("coaching").value!=="none";
+    const coachBase=+$("coachCost").value || 0;
+    const fees=[];
+    for(let i=0;i<14;i++){
+      const cls=i===0?"LKG":i===1?"UKG":"Class "+(i-1);
+      const fee=base*Math.pow(1+c.edu/100,start+i);
+      const coach=(i>=10 && coaching) ? coachBase*Math.pow(1+c.edu/100,start+i) : 0;
+      fees.push({cls, total:fee+coach});
+    }
+    const horizon=start+14;
+    const withdrawal=(m)=>{
+      if(m%12!==0) return 0;
+      const academicYear=Math.floor(m/12)-1;
+      if(academicYear<start || academicYear>=start+14) return 0;
+      return fees[academicYear-start].total;
+    };
+    const required=solve(s=>{
+      const sim=monthlySim(s,horizon,c.ret,c.step,existing,withdrawal);
+      return sim.minimumCorpus;
+    });
+    return {start,fees,horizon,existing,required,withdrawal,c};
+  }
+
+  function simulateSchool(model,sip){
+    const sim=monthlySim(sip,model.horizon,model.c.ret,model.c.step,model.existing,model.withdrawal);
+    const points=[];
+    let crashed=null;
+    sim.points.forEach((p,i)=>{
+      const year=Math.round(p.year);
+      let label="Year "+year;
+      if(year>model.start && year<=model.start+14){
+        const idx=year-model.start-1;
+        label=model.fees[idx]?.cls || label;
+      }
+      if(p.raw<0 && !crashed) crashed={label,shortfall:Math.abs(p.raw),year};
+      const withdrawalAmount = model.withdrawal(year*12) || 0;
+      points.push({...p,label,withdrawal:withdrawalAmount});
+    });
+    return {sim,points,crashed,final:sim.corpus};
+  }
+
+  function statusHTML(result){
+    if(result.crashed) return `<div class="status" style="background:#fff4e5;color:#b54708"><b>Corpus runs out before the goal.</b><br>It runs short at <b>${result.crashed.label}</b> by approximately <b>${money(result.crashed.shortfall)}</b>.</div>`;
+    return `<div class="status"><b>This SIP is sufficient for all planned withdrawals.</b><br>Projected surplus after the final planned withdrawal: <b>${money(result.final)}</b>.</div>`;
+  }
+
+  function formatAxisAmount(v){
+    v=Math.max(0,Number(v)||0);
+    if(v>=10000000) return "₹"+(v/10000000).toFixed(v%10000000===0?0:1)+"Cr";
+    if(v>=100000) return "₹"+(v/100000).toFixed(v%100000===0?0:1)+"L";
+    if(v>=1000) return "₹"+Math.round(v/1000)+"K";
+    return "₹"+Math.round(v);
+  }
+
+  function chart(points,target){
+    if(!points.length) return "";
+    const w=820,h=340,left=82,right=24,top=28,bottom=72;
+    const plotW=w-left-right, plotH=h-top-bottom;
+    const maxData=Math.max(target||0,...points.map(x=>Math.max(0,x.corpus)));
+    const step=Math.max(1,Math.ceil(maxData/5/10000)*10000 || 1);
+    const max=Math.ceil(maxData/step)*step || 1;
+    const x=i=>left+i*plotW/Math.max(1,points.length-1);
+    const y=v=>top+plotH-(Math.max(0,v)/max)*plotH;
+    const path=points.map((pt,i)=>`${i?"L":"M"} ${x(i)} ${y(pt.corpus)}`).join(" ");
+    let grid="";
+    for(let i=0;i<=5;i++){
+      const val=max*i/5, yy=y(val);
+      grid+=`<line x1="${left}" y1="${yy}" x2="${w-right}" y2="${yy}" stroke="#e5e7eb" stroke-width="1"/>`+
+            `<text x="${left-10}" y="${yy+4}" text-anchor="end" font-size="11" fill="#667085">${formatAxisAmount(val)}</text>`;
+    }
+    let ticks="";
+    const every=points.length<=15?1:2;
+    points.forEach((pt,i)=>{
+      if(!(i===0||i===points.length-1||i%every===0)) return;
+      const label=pt.label || (i===0?"Today":"Year "+Math.round(pt.year));
+      ticks+=`<line x1="${x(i)}" y1="${top}" x2="${x(i)}" y2="${h-bottom}" stroke="#f0f2f5" stroke-width="1"/>`+
+             `<line x1="${x(i)}" y1="${h-bottom}" x2="${x(i)}" y2="${h-bottom+5}" stroke="#9aa5b1"/>`+
+             `<text x="${x(i)}" y="${h-bottom+20}" text-anchor="middle" font-size="10" fill="#667085">${label}</text>`;
+    });
+    let withdrawals="";
+    points.forEach((pt,i)=>{
+      if(!pt.withdrawal) return;
+      const xx=x(i), yy=y(pt.corpus);
+      withdrawals+=`<line x1="${xx}" y1="${top}" x2="${xx}" y2="${h-bottom}" stroke="#b54708" stroke-width="2" stroke-dasharray="4 4"/>`+
+        `<circle cx="${xx}" cy="${yy}" r="5" fill="#b54708"/>`+
+        `<text x="${xx}" y="${Math.max(top+12,yy-10)}" text-anchor="middle" font-size="9" font-weight="600" fill="#b54708">Withdraw ${formatAxisAmount(pt.withdrawal)}</text>`;
+    });
+    const targetY=(target!==undefined&&target!==null)?y(target):null;
+    return `<svg viewBox="0 0 ${w} ${h}" aria-label="Projected corpus chart">
+      ${grid}${ticks}${withdrawals}
+      ${targetY!==null?`<line x1="${left}" y1="${targetY}" x2="${w-right}" y2="${targetY}" stroke="#667085" stroke-width="2" stroke-dasharray="6 6"/><text x="${w-right}" y="${targetY-7}" text-anchor="end" font-size="10" fill="#667085">Required at milestone: ${formatAxisAmount(target)}</text>`:""}
+      <path d="${path}" fill="none" stroke="#0b6b5e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      ${points.map((pt,i)=>`<circle cx="${x(i)}" cy="${y(pt.corpus)}" r="3" fill="#0b6b5e"/>`).join("")}
+      <text x="${left}" y="16" font-size="11" font-weight="600" fill="#667085">Remaining corpus</text>
+      <text x="${(left+w-right)/2}" y="${h-10}" text-anchor="middle" font-size="11" font-weight="600" fill="#667085">Time / milestone</text>
+    </svg>
+    <div class="legend"><span><i class="dot"></i>Projected remaining corpus</span>${target!==undefined&&target!==null?'<span><i class="dot2 dot"></i>Corpus required at milestone</span>':''}${points.some(p=>p.withdrawal)?'<span style="color:#b54708">● Withdrawal</span>':''}</div>`;
+  }
+
+  function renderSchool(){
+    const c=assumptions();
+    $("goalPanel").innerHTML=`
+      <h2>School planner</h2>
+      <p class="muted">Annual withdrawals are made at the beginning of each academic year. Competitive-exam coaching can be added from Class 9.</p>
+      <div class="row">
+        <div><label>Current annual school fee</label><input id="schoolCost" type="number" value="200000" min="0"></div>
+        <div><label>Existing school corpus</label><input id="schoolCorpus" type="number" value="0" min="0"></div>
+      </div>
+      <label>Competitive-exam coaching</label>
+      <select id="coaching"><option value="none">No coaching</option><option value="jee">JEE / IIT</option><option value="neet">NEET</option><option value="other">Other</option></select>
+      <div class="row">
+        <div><label>Current annual coaching cost</label><input id="coachCost" type="number" value="200000" min="0"></div>
+        <div><label>School starts in</label><input id="startYears" type="number" value="${Math.max(0,c.schoolAge-c.age)}" min="0" max="30"></div>
+      </div>
+      <div class="actions"><button id="calcSchool" type="button">Calculate school SIP</button></div>
+      <div id="schoolResult" style="margin-top:22px"></div>`;
+    $("calcSchool").addEventListener("click",updateSchool);
+    updateSchool();
+  }
+
+  function updateSchool(){
+    const c=assumptions();
+    const start=Math.max(0,+$("startYears").value||0);
+    const base=+$("schoolCost").value||0;
+    const existing=+$("schoolCorpus").value||0;
+    const coaching=$("coaching").value!=="none";
+    const coachBase=+$("coachCost").value||0;
+    const fees=[];
+    for(let i=0;i<14;i++){
+      const cls=i===0?"LKG":i===1?"UKG":"Class "+(i-1);
+      const fee=base*Math.pow(1+c.edu/100,start+i);
+      const coach=(i>=10&&coaching)?coachBase*Math.pow(1+c.edu/100,start+i):0;
+      fees.push({cls,total:fee+coach});
+    }
+    const withdrawal=m=>{
+      if(m%12!==0)return 0;
+      const idx=Math.floor(m/12)-1-start;
+      return idx>=0&&idx<14?fees[idx].total:0;
+    };
+    const horizon=start+14;
+    const required=solve(s=>monthlySim(s,horizon,c.ret,c.step,existing,withdrawal).minimumCorpus);
+    const result=simulateSchool({start,fees,horizon,existing,required,withdrawal,c},required);
+    $("schoolResult").innerHTML=`
+      <div class="result">
+        <div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div>
+        <div class="metric"><span>First milestone corpus needed</span><strong>${money(fees[0].total)}</strong></div>
+        <div class="metric"><span>School period</span><strong>${horizon} yrs</strong></div>
+      </div>
+      <label>Your monthly SIP <span class="muted">(editable)</span></label>
+      <input id="chosenSip" type="number" min="0" step="500" value="${Math.round(required)}">
+      <div id="sipStatus" style="margin-top:12px">${statusHTML(result)}</div>
+      <div class="assumption" style="margin-top:14px"><b>Milestone funding:</b> Each academic-year withdrawal is calculated from today's fee, grown by the education-inflation assumption. The chart marks every withdrawal so you can see exactly when money leaves the corpus.</div>
+      <div class="chart"><h3>Corpus journey and withdrawals</h3>${chart(result.points)}</div>`;
+    $("chosenSip").addEventListener("input",updateChosenSchoolSip);
+  }
+
+  function updateChosenSchoolSip(){
+    const c=assumptions();
+    const start=Math.max(0,+$("startYears").value||0), base=+$("schoolCost").value||0, existing=+$("schoolCorpus").value||0;
+    const coaching=$("coaching").value!=="none", coachBase=+$("coachCost").value||0;
+    const fees=[];
+    for(let i=0;i<14;i++){
+      const cls=i===0?"LKG":i===1?"UKG":"Class "+(i-1);
+      const fee=base*Math.pow(1+c.edu/100,start+i);
+      const coach=(i>=10&&coaching)?coachBase*Math.pow(1+c.edu/100,start+i):0;
+      fees.push({cls,total:fee+coach});
+    }
+    const withdrawal=m=>{
+      if(m%12!==0)return 0;
+      const idx=Math.floor(m/12)-1-start;
+      return idx>=0&&idx<14?fees[idx].total:0;
+    };
+    const model={start,fees,horizon:start+14,existing,withdrawal,c};
+    const chosen=Math.max(0,+$("chosenSip").value||0);
+    const result=simulateSchool(model,chosen);
+    $("sipStatus").innerHTML=statusHTML(result);
+    $("schoolResult").querySelector(".chart").innerHTML="<h3>Corpus journey and withdrawals</h3>"+chart(result.points);
+  }
+
+  function lumpModel(type,c){
+    const defaults={graduation:1800000,pg:2500000,marriage:5000000};
+    const ages={graduation:18,pg:22,marriage:25};
+    const age=+$("age").value||0;
+    const years=Math.max(0,ages[type]-age);
+    const infl=type==="marriage"?c.mar:c.edu;
+    const future=defaults[type]*Math.pow(1+infl/100,years);
+    const required=solve(s=>monthlySim(s,years,c.ret,c.step,0).corpus-future);
+    return {future,years,required,goalAge:ages[type],infl,defaultCost:defaults[type]};
+  }
+
+  function renderLump(type){
+    const c=assumptions(), names={graduation:"Graduation",pg:"Post-Graduation",marriage:"Marriage"};
+    const m=lumpModel(type,c);
+    $("goalPanel").innerHTML=`
+      <h2>${names[type]} planner</h2>
+      <p class="muted">Build one corpus and withdraw the required amount when the goal begins.</p>
+      <div class="row">
+        <div><label>Current estimated cost</label><input id="lumpCost" type="number" value="${m.defaultCost}" min="0"></div>
+        <div><label>Existing goal corpus</label><input id="lumpCorpus" type="number" value="0" min="0"></div>
+      </div>
+      <div class="row">
+        <div><label>Goal start age</label><input id="goalAge" type="number" value="${m.goalAge}" min="${c.age}" max="80"></div>
+        <div><label>Inflation used</label><input id="goalInfl" type="number" value="${m.infl}" step=".5" min="0"></div>
+      </div>
+      <div class="actions"><button id="calcLump" type="button">Calculate SIP</button></div>
+      <div id="lumpResult" style="margin-top:22px"></div>`;
+    $("calcLump").addEventListener("click",()=>updateLump(type));
+    updateLump(type);
+  }
+
+  function updateLump(type){
+    const c=assumptions(), cost=+$("lumpCost").value||0, existing=+$("lumpCorpus").value||0;
+    const goalAge=+$("goalAge").value||c.age, years=Math.max(0,goalAge-c.age), infl=+$("goalInfl").value||0;
+    const future=cost*Math.pow(1+infl/100,years);
+    const required=solve(s=>monthlySim(s,years,c.ret,c.step,existing).corpus-future) * 1.0005;
+    const sim=monthlySim(required,years,c.ret,c.step,existing);
+    $("lumpResult").innerHTML=`
+      <div class="result">
+        <div class="metric"><span>Required SIP</span><strong>${money(required)}/mo</strong></div>
+        <div class="metric"><span>Corpus needed at milestone</span><strong>${money(future)}</strong></div>
+        <div class="metric"><span>Time available</span><strong>${years} yrs</strong></div>
+      </div>
+      <label>Your monthly SIP <span class="muted">(editable)</span></label>
+      <input id="chosenLumpSip" type="number" min="0" step="500" value="${Math.round(required)}">
+      <div id="lumpStatus" style="margin-top:12px"></div>
+      <div class="assumption" style="margin-top:14px"><b>Milestone corpus:</b> ${money(cost)} in today's money grows to <b>${money(future)}</b> by age ${goalAge}, using ${infl}% annual inflation. This is the target corpus used to calculate the SIP.</div>
+      <div class="chart"><h3>Corpus build-up to milestone</h3>${chart(sim.points.map((pt,i)=>({...pt,label:i===sim.points.length-1?"Goal":"Year "+Math.round(pt.year)})),future)}</div>`;
+    $("chosenLumpSip").addEventListener("input",()=>updateChosenLumpSip(type));
+    updateChosenLumpSip(type);
+  }
+
+  function updateChosenLumpSip(type){
+    const c=assumptions(), chosen=Math.max(0,+$("chosenLumpSip").value||0), cost=+$("lumpCost").value||0, existing=+$("lumpCorpus").value||0;
+    const goalAge=+$("goalAge").value||c.age, years=Math.max(0,goalAge-c.age), infl=+$("goalInfl").value||0;
+    const future=cost*Math.pow(1+infl/100,years);
+    const sim=monthlySim(chosen,years,c.ret,c.step,existing);
+    const diff=sim.corpus-future;
+    $("lumpStatus").innerHTML=diff<0
+      ? `<div class="status" style="background:#fff4e5;color:#b54708"><b>Shortfall at goal date: ${money(Math.abs(diff))}</b><br>Your selected SIP is below the amount needed for the target corpus.</div>`
+      : `<div class="status"><b>Surplus at goal date: ${money(diff)}</b><br>Your selected SIP is projected to exceed the target corpus.</div>`;
+    $("lumpResult").querySelector(".chart").innerHTML="<h3>Corpus build-up to milestone</h3>"+chart(sim.points.map((pt,i)=>({...pt,label:i===sim.points.length-1?"Goal":"Year "+Math.round(pt.year)})),future);
+  }
+
+  function renderSummary(){
+    const c=assumptions();
+    // Independent-goal summary. School defaults are intentionally aligned with the school page.
+    const start=Math.max(0,c.schoolAge-c.age), base=200000;
+    const fees=Array.from({length:14},(_,i)=>base*Math.pow(1+c.edu/100,start+i));
+    const withdrawal=m=>{
+      if(m%12!==0)return 0;
+      const idx=Math.floor(m/12)-1-start;
+      return idx>=0&&idx<14?fees[idx]:0;
+    };
+    const school=solve(s=>monthlySim(s,start+14,c.ret,c.step,0,withdrawal).minimumCorpus)*1.0005;
+    const g=lumpModel("graduation",c), pg=lumpModel("pg",c), mar=lumpModel("marriage",c);
+    const total=school+g.required+pg.required+mar.required;
+    const rows=[["School",school,`${start} yrs`,"Annual withdrawals"],["Graduation",g.required,`${g.years} yrs`,"Lump sum"],["Post-Graduation",pg.required,`${pg.years} yrs`,"Lump sum"],["Marriage",mar.required,`${mar.years} yrs`,"Lump sum"]];
+    $("goalPanel").innerHTML=`
+      <h2>Plan summary</h2>
+      <p class="muted">A one-page view of the starting SIP required for every goal and the combined amount to set aside each month.</p>
+      <div class="status"><b>Combined starting SIP: ${money(total)}/month</b><br>This is the simple sum of the four independent goal SIPs under the current assumptions.</div>
+      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">
+        <thead><tr><th style="text-align:left;padding:12px;border-bottom:1px solid #e6e9ee">Goal</th><th style="text-align:right;padding:12px;border-bottom:1px solid #e6e9ee">Starting SIP</th><th style="text-align:right;padding:12px;border-bottom:1px solid #e6e9ee">Starts in</th><th style="text-align:left;padding:12px;border-bottom:1px solid #e6e9ee">Funding style</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr><td style="padding:12px;border-bottom:1px solid #eef0f3">${r[0]}</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eef0f3;font-weight:700">${money(r[1])}/mo</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eef0f3">${r[2]}</td><td style="padding:12px;border-bottom:1px solid #eef0f3">${r[3]}</td></tr>`).join("")}</tbody>
+        <tfoot><tr><td style="padding:14px;font-weight:800">Total</td><td style="padding:14px;text-align:right;font-weight:800">${money(total)}/mo</td><td></td><td></td></tr></tfoot>
+      </table></div>
+      <div class="assumption" style="margin-top:16px"><b>How to use it:</b> treat ${money(total)}/month as the combined starting amount. Each goal can then be adjusted independently on its own page. The current summary is not yet an optimized common-pool calculation.</div>`;
+  }
+
+  function render(){
+    if(goal==="school") renderSchool();
+    else if(goal==="graduation") renderLump("graduation");
+    else if(goal==="pg") renderLump("pg");
+    else if(goal==="marriage") renderLump("marriage");
+    else renderSummary();
+  }
+
+  document.querySelectorAll(".goal").forEach(el=>{
+    el.addEventListener("click",()=>{
+      document.querySelectorAll(".goal").forEach(x=>x.classList.remove("active"));
+      el.classList.add("active");
+      goal=el.dataset.goal;
+      render();
+    });
+  });
+  ["age","schoolAge","returnRate","stepUp","eduInfl","marInfl"].forEach(id=>{
+    $(id).addEventListener("input",render);
+  });
+  render();
+})();
+</script></body></html>
