@@ -140,7 +140,35 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   const $ = id => document.getElementById(id);
   const money = n => "₹" + Math.max(0, Math.round(Number(n)||0)).toLocaleString("en-IN");
   let goal = "school";
-  const goalState = {};
+  const STORAGE_KEY = "investmentPlannerChildFuture_v1";
+  let goalState = {};
+  function loadPlannerState(){
+    try{
+      const saved=localStorage.getItem(STORAGE_KEY);
+      if(saved){
+        const data=JSON.parse(saved);
+        if(data.assumptions){
+          ["age","schoolAge","returnRate","stepUp","eduInfl","marInfl"].forEach(id=>{
+            if(data.assumptions[id]!==undefined && $(id)) $(id).value=data.assumptions[id];
+          });
+        }
+        if(data.goalState) goalState=data.goalState;
+        if(data.goal) goal=data.goal;
+      }
+    }catch(e){}
+  }
+  function savePlannerState(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify({
+        assumptions:{
+          age:$("age")?.value, schoolAge:$("schoolAge")?.value, returnRate:$("returnRate")?.value,
+          stepUp:$("stepUp")?.value, eduInfl:$("eduInfl")?.value, marInfl:$("marInfl")?.value
+        },
+        goalState, goal
+      }));
+    }catch(e){}
+  }
+
 
   function assumptions(){
     return {
@@ -486,6 +514,7 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   }
 
   function render(){
+    savePlannerState();
     if(goal==="school") renderSchool();
     else if(goal==="graduation") renderLump("graduation");
     else if(goal==="pg") renderLump("pg");
@@ -507,12 +536,15 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
       document.querySelectorAll(".goal").forEach(x=>x.classList.remove("active"));
       el.classList.add("active");
       goal=el.dataset.goal;
+      savePlannerState();
       render();
     });
   });
   ["age","schoolAge","returnRate","stepUp","eduInfl","marInfl"].forEach(id=>{
     $(id).addEventListener("input",render);
   });
+  loadPlannerState();
+  document.querySelectorAll(".goal").forEach(el=>el.classList.toggle("active",el.dataset.goal===goal));
   render();
 })();
 </script></body></html>
