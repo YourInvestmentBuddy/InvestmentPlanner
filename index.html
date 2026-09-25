@@ -38,15 +38,24 @@ button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);co
   .card{border-radius:16px;padding:16px}
   h2{font-size:19px;margin-bottom:14px}
   h3{font-size:15px}
-  .row,.result{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .result{grid-template-columns:repeat(3,1fr);gap:7px}
+  .metric{padding:10px 8px}
+  .metric span{font-size:10px;line-height:1.25}
+  .metric strong{font-size:17px;line-height:1.15;word-break:break-word}
   .child-input-row{grid-template-columns:1fr 1fr;gap:10px}
   .child-input-row label,.assumption-input-row label{font-size:12px;line-height:1.25;min-height:30px;margin-top:8px}
   .assumption-input-row{grid-template-columns:1fr 1fr;gap:10px}
   .goal-panel-inputs{grid-template-columns:1fr 1fr;gap:10px}
+  .goal-panel-result .status{margin-bottom:12px}
   .goal-panel-inputs label{font-size:12px;line-height:1.25;min-height:30px;margin-top:8px}
   .goal-panel-actions{margin-top:12px}
   .goal-panel-actions button{width:100%}
   .goal-panel-result{margin-top:16px!important}
+  .result{grid-template-columns:repeat(3,1fr);gap:8px}
+  .metric{padding:12px}
+  .metric span{font-size:11px;line-height:1.3}
+  .metric strong{font-size:19px}
   label{font-size:13px;margin-top:13px}
   input,select{font-size:16px;padding:12px}
   .goal{padding:13px}
